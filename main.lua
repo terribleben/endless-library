@@ -27,6 +27,7 @@ function love.keypressed(key, ...)
 end
 
 function _reset()
+   love.math.setRandomSeed(42)
    SharedState:reset()
    Room:reset()
 end

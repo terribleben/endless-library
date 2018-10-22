@@ -1,4 +1,5 @@
 local SharedState = require 'sharedstate'
+local Room = require 'room'
 
 function love.load()
    _reset()
@@ -15,6 +16,7 @@ function love.draw()
       0, 0,
       SharedState.viewport.width, SharedState.viewport.height
    )
+   Room:draw()
    love.graphics.pop()
 end
 
@@ -26,4 +28,5 @@ end
 
 function _reset()
    SharedState:reset()
+   Room:reset()
 end

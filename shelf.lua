@@ -30,7 +30,7 @@ function Shelf:draw()
 end
 
 function Shelf:_reset()
-   local x = love.math.random(17)
+   local x = 9 + love.math.random(8)
    self._books = {}
    self._numBooks = 0
    -- TODO: 18 is currently max book width, centralize

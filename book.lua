@@ -14,11 +14,15 @@ end
 
 function Book:draw()
    love.graphics.setColor(1, 1, 1, 1)
+   love.graphics.push()
+   love.graphics.translate(self.position.x, self.position.y)
+   -- TODO: love.graphics.rotate()
    love.graphics.rectangle(
       'line',
-      self.position.x, self.position.y,
+      -self.width * 0.5, -self.height * 0.5,
       self.width, self.height
    )
+   love.graphics.pop()
 end
 
 return Book

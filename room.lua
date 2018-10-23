@@ -1,19 +1,29 @@
 local SharedState = require 'sharedstate'
 local Bookcase = require 'bookcase'
+local Desk = require 'desk'
 
 Room = {
    _bookcases = {},
    _numBookcases = 0,
+   _desks = {},
+   _numDesks = 0,
 }
 
 function Room:reset()
    self._bookcases = {}
    self._numBookcases = 0
+   self._numDesks = 0
+   self._desks = {}
    local pRoomLayout = love.math.random()
+   -- todo: formalize room layouts a bit more
    if pRoomLayout < 0.3 then
       self:_addUniformBookcases(0, SharedState.viewport.width)
-   elseif pRoomLayout < 0.8 then
+   elseif pRoomLayout < 0.7 then
       self:_addRandomBookcases(0, SharedState.viewport.width, true)
+   elseif pRoomLayout < 0.8 then
+      local x, width = self:_addDesk()
+      self:_addRandomBookcases(0, x, true)
+      self:_addRandomBookcases(x + width, SharedState.viewport.width, true)
    else
       self:_addRandomBookcases(0, SharedState.viewport.width, false)
    end
@@ -23,6 +33,21 @@ function Room:draw()
    for ii = 1, self._numBookcases do
       self._bookcases[ii]:draw()
    end
+   for ii = 1, self._numDesks do
+      self._desks[ii]:draw()
+   end   
+end
+
+function Room:_addDesk()
+   local width, height = 200, 75
+   local x = love.math.random() * (SharedState.viewport.width - width)
+   self._numDesks = self._numDesks + 1
+   self._desks[self._numDesks] = Desk:new({
+         position = { x = x, y = SharedState.viewport.height - height },
+         width = width,
+         height = height,
+   })
+   return x, width
 end
 
 function Room:_addUniformBookcases(xBegin, xEnd)

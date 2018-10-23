@@ -31,30 +31,81 @@ end
 
 function Shelf:_reset()
    local x = 9 + love.math.random(8)
-   local angle, prevAngle = 0, 0
+   local prevAngle = 0
    self._books = {}
    self._numBooks = 0
    -- TODO: 18 is currently max book width, centralize
    while x < self.width - 18 do
-      local width, height = self:_getBookDimensions()
-      angle = self:_getBookAngle(angle)
-      local absAngle = math.abs(angle)
-      local boundsWidth, boundsHeight =
-         width * math.cos(absAngle) + height * math.sin(absAngle),
-         width * math.sin(absAngle) + height * math.cos(absAngle)
-      local nextX
-      if prevAngle == angle then nextX = x + width * 0.5 else nextX = x + boundsWidth * 0.5 end
-      self._numBooks = self._numBooks + 1
-      self._books[self._numBooks] =
-         Book:new({
-               position = { x = nextX, y = self.height - boundsHeight * 0.5 },
-               width = width,
-               height = height,
-               angle = angle,
-         })
+      local boundsWidth, angle = self:_addBooks(prevAngle, x)
       x = x + boundsWidth
       prevAngle = angle
    end
+end
+
+-- add one or more books to the shelf.
+-- return the width occupied and the angle of the last book added.
+function Shelf:_addBooks(prevAngle, x)
+   local spaceAvailable = self.width - x
+   if spaceAvailable >= Book.PAPERBACK_HEIGHT + 18 and love.math.random() < 0.02 then
+      return self:_addBookStack(prevAngle, x)
+   else
+      return self:_addSingleBook(prevAngle, x)
+   end
+end
+
+function Shelf:_addSingleBook(prevAngle, x)
+   local width, height = self:_getBookDimensions()
+   local angle = self:_getBookAngle(prevAngle)
+   local absAngle = math.abs(angle)
+   local boundsWidth, boundsHeight =
+      width * math.cos(absAngle) + height * math.sin(absAngle),
+      width * math.sin(absAngle) + height * math.cos(absAngle)
+   local nextX
+   if prevAngle == angle then nextX = x + width * 0.5 else nextX = x + boundsWidth * 0.5 end
+   self._numBooks = self._numBooks + 1
+   self._books[self._numBooks] =
+      Book:new({
+            position = { x = nextX, y = self.height - boundsHeight * 0.5 },
+            width = width,
+            height = height,
+            angle = angle,
+      })
+   return boundsWidth, angle
+end
+
+function Shelf:_addBookStack(prevAngle, x)
+   local stackHeight, maxWidth = 0, 0
+   local stackSize = 0
+   repeat
+      local width, height = self:_getBookDimensions()
+      local nextX = x + height * 0.5
+      local currentStackWidth = height
+      if currentStackWidth > maxWidth then
+         maxWidth = currentStackWidth
+      end
+      self._numBooks = self._numBooks + 1
+      self._books[self._numBooks] =
+         Book:new({
+               position = { x = nextX, y = self.height - width * 0.5 - stackHeight },
+               width = width,
+               height = height,
+               angle = math.pi * 0.5,
+         })
+      stackHeight = stackHeight + width
+      stackSize = stackSize + 1
+      if love.math.random() < 0.15 then break end
+   until stackHeight >= self.height - 18
+
+   -- redistribute books horizontally based on width of stack
+   for ii = 0, stackSize - 1 do
+      local book = self._books[self._numBooks - ii]
+      local diffFromMax = maxWidth - book.height
+      if diffFromMax > 0 then
+         local offset = diffFromMax * love.math.random()
+         book.position.x = book.position.x + offset
+      end
+   end
+   return maxWidth, 0
 end
 
 function Shelf:_getBookDimensions()
@@ -68,8 +119,8 @@ function Shelf:_getBookDimensions()
       height = Book.PAPERBACK_HEIGHT
       width = 7 + 4 * fatness
    else
-      width = 10 + 8 * fatness
       height = self.height * (0.6 + 0.1 * love.math.random(3))
+      width = height * (0.15 + 0.2 * fatness)
    end
    return width, height
 end

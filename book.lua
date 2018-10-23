@@ -2,6 +2,8 @@ Book = {
    position = { x = 0, y = 0 },
    width = 0,
    height = 0,
+   PULP_HEIGHT = 30,
+   PAPERBACK_HEIGHT = 42,
 }
 
 function Book:new(b)

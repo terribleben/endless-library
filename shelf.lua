@@ -30,7 +30,7 @@ function Shelf:draw()
 end
 
 function Shelf:_reset()
-   local x = 0
+   local x = love.math.random(17)
    self._books = {}
    self._numBooks = 0
    -- TODO: 18 is currently max book width, centralize
@@ -48,9 +48,19 @@ function Shelf:_reset()
 end
 
 function Shelf:_getBookDimensions()
-   -- TODO: categories of book
-   local width = 10 + 2 * love.math.random(4)
-   local height = self.height * (0.6 + 0.1 * love.math.random(3))
+   local width, height
+   local p = love.math.random()
+   local fatness = love.math.random()
+   if self.height > Book.PULP_HEIGHT and p < 0.5 then
+      height = Book.PULP_HEIGHT
+      width = 7 + 4 * fatness
+   elseif self.height > Book.PAPERBACK_HEIGHT and p < 0.75 then
+      height = Book.PAPERBACK_HEIGHT
+      width = 7 + 4 * fatness
+   else
+      width = 10 + 8 * fatness
+      height = self.height * (0.6 + 0.1 * love.math.random(3))
+   end
    return width, height
 end
 

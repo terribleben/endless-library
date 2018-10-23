@@ -31,19 +31,56 @@ function Bookcase:draw()
 end
 
 function Bookcase:_reset()
-   -- for now, uniform shelves
-   local numShelves = 2 + love.math.random(3)
-   local shelfHeight = self.height / numShelves
    self._shelves = {}
    self._numShelves = 0
+   local pShelfBehavior = love.math.random()
+   if pShelfBehavior < 0.5 then
+      self:_addUniformShelves(0, self.height)
+   elseif pShelfBehavior < 0.75 then
+      local division = self.height * (0.25 + 0.5 * love.math.random())
+      self:_addUniformShelves(0, division)
+      self:_addUniformShelves(division, self.height)
+   else
+      self:_addRandomShelves(0, self.height)
+   end
+end
+
+function Bookcase:_addUniformShelves(yStart, yEnd)
+   local numShelves = 1 + love.math.random(5)
+   local shelfHeight = (yEnd - yStart) / numShelves
+   while shelfHeight > Shelf.MAX_HEIGHT do
+      numShelves = numShelves + 1
+      shelfHeight = (yEnd - yStart) / numShelves
+   end
+   while shelfHeight < Shelf.MIN_HEIGHT do
+      numShelves = numShelves - 1
+      shelfHeight = (yEnd - yStart) / numShelves
+   end
    for ii = 1, numShelves do
       self._numShelves = self._numShelves + 1
       self._shelves[self._numShelves] =
          Shelf:new({
-               position = { x = 0, y = shelfHeight * (ii - 1) },
+               position = { x = 0, y = yStart + (shelfHeight * (ii - 1)) },
                width = self.width,
                height = shelfHeight,
          })
+   end
+end
+
+function Bookcase:_addRandomShelves(yStart, yEnd)
+   local y = yEnd
+   while y > Shelf.MIN_HEIGHT do
+      local shelfHeight = Shelf.MIN_HEIGHT + (Shelf.MAX_HEIGHT - Shelf.MIN_HEIGHT) * love.math.random()
+      if y - shelfHeight > yStart then
+         self._numShelves = self._numShelves + 1
+      self._shelves[self._numShelves] =
+         Shelf:new({
+               position = { x = 0, y = y - shelfHeight },
+               width = self.width,
+               height = shelfHeight,
+         })
+      end
+      y = y - shelfHeight
    end
 end
 

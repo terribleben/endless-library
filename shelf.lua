@@ -6,6 +6,8 @@ Shelf = {
    height = 0,
    _books = {},
    _numBooks = 0,
+   MIN_HEIGHT = 36,
+   MAX_HEIGHT = 64,
 }
 
 function Shelf:new(s)

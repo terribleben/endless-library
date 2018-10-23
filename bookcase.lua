@@ -35,6 +35,7 @@ function Bookcase:_reset()
    local numShelves = 2 + love.math.random(3)
    local shelfHeight = self.height / numShelves
    self._shelves = {}
+   self._numShelves = 0
    for ii = 1, numShelves do
       self._numShelves = self._numShelves + 1
       self._shelves[self._numShelves] =

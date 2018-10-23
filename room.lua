@@ -8,6 +8,7 @@ Room = {
 
 function Room:reset()
    self._bookcases = {}
+   self._numBookcases = 0
    for ii = 1, 3 do
       self._numBookcases = self._numBookcases + 1
       local height = 150 + 25 * love.math.random(4)

@@ -4,6 +4,12 @@ Bookcase = {
    position = { x = 0, y = 0 },
    width = 0,
    height = 0,
+   sizes = {
+      NARROW = 75,
+      MEDIUM = 175,
+      WIDE = 375,
+      GRAND = 700,
+   },
    _shelves = {},
    _numShelves = 0,
 }

@@ -21,6 +21,17 @@ function Bookcase:new(b)
    return b
 end
 
+function Bookcase.randomWidth()
+   local width
+   local ii = love.math.random(1, 4)
+   if ii == 1 then width = Bookcase.sizes.NARROW
+   elseif ii == 2 then width = Bookcase.sizes.MEDIUM
+   elseif ii == 3 then width = Bookcase.sizes.WIDE
+   else width = Bookcase.sizes.GRAND
+   end
+   return width
+end
+
 function Bookcase:draw()
    love.graphics.setColor(1, 1, 1, 1)
    love.graphics.push()

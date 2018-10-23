@@ -11,7 +11,7 @@ function Room:reset()
    self._numBookcases = 0
    local pRoomLayout = love.math.random()
    if pRoomLayout < 0.3 then
-      self:_addUniformBookcases()
+      self:_addUniformBookcases(0, SharedState.viewport.width)
    elseif pRoomLayout < 0.8 then
       self:_addRandomBookcases(0, SharedState.viewport.width, true)
    else
@@ -26,7 +26,28 @@ function Room:draw()
 end
 
 function Room:_addUniformBookcases(xBegin, xEnd)
-   -- todo
+   local width, height = Bookcase.randomWidth(), 150 + 25 * love.math.random(4)
+   local spacing = 5 * math.random(0, 6)
+   local numBookcases = math.floor((xEnd - xBegin) / (width + spacing))
+
+   -- append numBookcases new cases
+   for ii = 1, numBookcases do
+      self._numBookcases = self._numBookcases + 1
+      self._bookcases[self._numBookcases] = Bookcase:new({
+         position = { x = 0, y = SharedState.viewport.height - height },
+         width = width,
+         height = height,
+      })
+   end
+
+   -- space evenly
+   local totalWidth = (numBookcases * width) + ((numBookcases - 1) * spacing)
+   local xOffset = ((xEnd - xBegin) - totalWidth) * 0.5
+   for ii = 0, numBookcases - 1 do
+      self._bookcases[self._numBookcases - ii].position.x =
+         (ii * (width + spacing)) + xBegin + xOffset
+   end
+      
 end
 
 function Room:_addRandomBookcases(xBegin, xEnd, allowEmpty)
@@ -50,12 +71,7 @@ function Room:_addRandomBookcase(xBegin, xEnd, allowEmpty)
    
    local x, width
    repeat
-      local ii = love.math.random(1, 4)
-      if ii == 1 then width = Bookcase.sizes.NARROW
-      elseif ii == 2 then width = Bookcase.sizes.MEDIUM
-      elseif ii == 3 then width = Bookcase.sizes.WIDE
-      else width = Bookcase.sizes.GRAND
-      end
+      width = Bookcase.randomWidth()
    until xBegin + width < xEnd
    
    x = xBegin + love.math.random() * (xEnd - xBegin - width)

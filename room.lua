@@ -1,19 +1,25 @@
 local SharedState = require 'sharedstate'
 local Bookcase = require 'bookcase'
 local Desk = require 'desk'
+local winddow = require 'window'
 
 Room = {
    _bookcases = {},
    _numBookcases = 0,
    _desks = {},
    _numDesks = 0,
+   _windows = {},
+   _numWindows = 0,
 }
 
 function Room:reset()
    self._bookcases = {}
    self._numBookcases = 0
-   self._numDesks = 0
    self._desks = {}
+   self._numDesks = 0
+   self._windows = {}
+   self._numWindows = 0
+   
    local pRoomLayout = love.math.random()
    -- todo: formalize room layouts a bit more
    if pRoomLayout < 0.3 then
@@ -27,15 +33,36 @@ function Room:reset()
    else
       self:_addRandomBookcases(0, SharedState.viewport.width, false)
    end
+
+   local pWindowLayout = love.math.random()
+   if pWindowLayout < 0.3 then
+      self:_addWindow()
+   end
 end
 
 function Room:draw()
+   for ii = 1, self._numWindows do
+      self._windows[ii]:draw()
+   end
    for ii = 1, self._numBookcases do
       self._bookcases[ii]:draw()
    end
    for ii = 1, self._numDesks do
       self._desks[ii]:draw()
    end   
+end
+
+function Room:_addWindow()
+   local width, height = 250, 150
+   local x = love.math.random() * (SharedState.viewport.width - width)
+   local y = 50 + 50 * love.math.random(0, 4)
+   self._numWindows = self._numWindows + 1
+   self._windows[self._numWindows] = Window:new({
+         position = { x = x, y = y },
+         width = width,
+         height = height,
+   })
+   return x, width
 end
 
 function Room:_addDesk()

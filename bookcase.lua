@@ -33,9 +33,15 @@ function Bookcase.randomWidth()
 end
 
 function Bookcase:draw()
-   love.graphics.setColor(1, 1, 1, 1)
    love.graphics.push()
    love.graphics.translate(self.position.x, self.position.y)
+   love.graphics.setColor(0, 0, 0, 1)
+   love.graphics.rectangle(
+      'fill',
+      0, 0,
+      self.width, self.height
+   )
+   love.graphics.setColor(1, 1, 1, 1)
    love.graphics.rectangle(
       'line',
       0, 0,

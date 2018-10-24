@@ -35,8 +35,10 @@ function Room:reset()
    end
 
    local pWindowLayout = love.math.random()
-   if pWindowLayout < 0.3 then
-      self:_addWindow()
+   if pWindowLayout < 0.1 then
+      self:_addSingleWindow()
+   elseif pWindowLayout < 0.3 then
+      self:_addWindowRow()
    end
 end
 
@@ -52,16 +54,42 @@ function Room:draw()
    end   
 end
 
-function Room:_addWindow()
-   local width, height = 250, 150
+function Room:_addSingleWindow()
+   local variety = love.math.random(1, Window.NUM_VARIETIES)
+   local width, height = Window.getCharacteristicSize(variety)
    local x = love.math.random() * (SharedState.viewport.width - width)
    local y = 50 + 50 * love.math.random(0, 4)
-   self._numWindows = self._numWindows + 1
-   self._windows[self._numWindows] = Window:new({
+   return self:_addWindow({
          position = { x = x, y = y },
          width = width,
          height = height,
+         variety = variety,
    })
+end
+
+function Room:_addWindowRow()
+   local variety = love.math.random(1, Window.NUM_VARIETIES)
+   local width, height = Window.getCharacteristicSize(variety)
+   local spacing = 10 + 10 * love.math.random(0, 3)
+   local maxNumWindows = math.floor(SharedState.viewport.width / (width + spacing))
+   local numWindows = love.math.random(2, maxNumWindows)
+   local totalWidth = (width * numWindows) + (spacing * (numWindows - 1))
+   local xStart = (SharedState.viewport.width * 0.5) - (totalWidth * 0.5)
+   local y = 50 + 50 * love.math.random(0, 4)
+   for ii = 0, numWindows - 1 do
+      self:_addWindow({
+            position = { x = xStart + (ii * (width + spacing)), y = y },
+            width = width,
+            height = height,
+            variety = variety,
+      })
+   end
+   return xStart, totalWidth
+end
+
+function Room:_addWindow(w)
+   self._numWindows = self._numWindows + 1
+   self._windows[self._numWindows] = Window:new(w)
    return x, width
 end
 

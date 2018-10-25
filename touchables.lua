@@ -2,17 +2,24 @@ local Exit = require 'exit'
 local Geom = require 'geom'
 local SharedState = require 'sharedstate'
 local Room = require 'room'
+local Transition = require 'transition'
 
 Touchables = {
    _isMouseActive = false,
    _mouseTimer = 0,
    _opacity = 0,
+   _touchables = nil,
+   _isTransitioning = false,
+   _transitionTimer = 0,
+   _transitionDestination = 0,
    MOUSE_TIMER_MAX = 3,
-   _touchables = {},
 }
 
 function Touchables:reset()
    self._touchables = {}
+   self._isTransitioning = false
+   self._transitionTimer = 0
+   self._transitionDestination = 0
    local leftExit, rightExit
    for idx, exit in pairs(Room.exits) do
       if exit.orientation == Exit.orientations.RIGHT then
@@ -54,12 +61,21 @@ function Touchables:update(dt)
    elseif not self._isMouseActive and self._opacity > 0 then
       self._opacity = self._opacity + (0 - self._opacity) * 0.025
    end
+
+   if self._isTransitioning then
+      self._transitionTimer = self._transitionTimer - dt
+      if self._transitionTimer <= 0 then
+         self:_transitionFinished()
+      end
+   end
 end
 
 function Touchables:draw()
-   love.graphics.setColor(0, 1, 1, self._opacity)
-   for idx, touchable in pairs(self._touchables) do
-      self:_drawArrow(touchable.x, touchable.y, 12, touchable.angle)
+   if not self._isTransitioning then
+      love.graphics.setColor(0, 1, 1, self._opacity)
+      for idx, touchable in pairs(self._touchables) do
+         self:_drawArrow(touchable.x, touchable.y, 12, touchable.angle)
+      end
    end
 end
 
@@ -78,8 +94,17 @@ function Touchables:mousepressed(x, y, ...)
    }
    local pressed = self:_indexOfTouchablePressed(touchInViewport)
    if pressed >= 0 then
-      SharedState:nextRoom(self._touchables[pressed].exit)
+      self._isTransitioning = true
+      self._transitionTimer = Transition.TIME_OUT
+      self._transitionDestination = self._touchables[pressed].exit
+      Transition:start()
    end
+end
+
+function Touchables:_transitionFinished()
+   self._isTransitioning = false
+   self._transitionTimer = 0
+   SharedState:nextRoom(self._transitionDestination)
 end
 
 function Touchables:_drawArrow(x, y, radius, angle)

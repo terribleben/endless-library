@@ -1,6 +1,7 @@
 local Room = require 'room'
 local SharedState = require 'sharedstate'
 local Touchables = require 'touchables'
+local Transition = require 'transition'
 
 G_VIEWPORT_BUFFER = 96
 G_INITIAL_SEED = 424242
@@ -15,6 +16,7 @@ function love.draw()
    love.graphics.translate(SharedState.screen.width * 0.5, SharedState.screen.height * 0.5)
    love.graphics.translate(SharedState.viewport.x, SharedState.viewport.y)
    Room:draw()
+   Transition:draw()
    _drawViewportBorder()
    Touchables:draw()
    love.graphics.pop()
@@ -22,6 +24,7 @@ end
 
 function love.update(dt)
    Touchables:update(dt)
+   Transition:update(dt)
 end
 
 function love.mousemoved(...)

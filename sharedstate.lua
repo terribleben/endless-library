@@ -3,6 +3,12 @@ SharedState = {
    viewport = { x = 0, y = 0, width = 0, height = 0 },
 }
 
+function SharedState:randomize()
+   self:reset()
+   Room:reset()
+   Touchables:reset()
+end
+
 function SharedState:reset()
    local width, height, flags = love.window.getMode()
    self.screen.width = width

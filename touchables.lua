@@ -1,5 +1,7 @@
-local SharedState = require 'sharedstate'
+local Exit = require 'exit'
 local Geom = require 'geom'
+local SharedState = require 'sharedstate'
+local Room = require 'room'
 
 Touchables = {
    _isMouseActive = false,
@@ -10,20 +12,32 @@ Touchables = {
 }
 
 function Touchables:reset()
-   self._touchables = {
-      {
+   self._touchables = {}
+   local leftExit, rightExit
+   for idx, exit in pairs(Room.exits) do
+      if exit.orientation == Exit.orientations.RIGHT then
+         rightExit = exit
+      end
+      if exit.orientation == Exit.orientations.LEFT then
+         leftExit = exit
+      end
+   end
+   if rightExit then
+      table.insert(self._touchables, {
          x = SharedState.viewport.width + 32,
          y = SharedState.viewport.height - 192,
          angle = 0,
-      },
-      --[[ todo: enable deterministic wandering
-      {
-         x = 32,
+         exit = rightExit,
+      })
+   end
+   if leftExit then
+      table.insert(self._touchables, {
+         x = -32,
          y = SharedState.viewport.height - 192,
          angle = math.pi,
-      },
-      --]]
-   }
+         exit = leftExit,
+      })
+   end
 end
 
 function Touchables:update(dt)
@@ -55,14 +69,16 @@ function Touchables:mousemoved(...)
 end
 
 function Touchables:mousepressed(x, y, ...)
+   self._isMouseActive = true
+   self._mouseTimer = self.MOUSE_TIMER_MAX
+   
    local touchInViewport = {
       x = x - SharedState.screen.width * 0.5 - SharedState.viewport.x,
       y = y - SharedState.screen.height * 0.5 - SharedState.viewport.y,
    }
    local pressed = self:_indexOfTouchablePressed(touchInViewport)
    if pressed >= 0 then
-      -- todo: deterministic wandering
-      SharedState:randomize()
+      SharedState:nextRoom(self._touchables[pressed].exit)
    end
 end
 

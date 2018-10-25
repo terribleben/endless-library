@@ -1,6 +1,7 @@
 local SharedState = require 'sharedstate'
 local Bookcase = require 'bookcase'
 local Desk = require 'desk'
+local Exit = require 'exit'
 local winddow = require 'window'
 
 Room = {
@@ -10,6 +11,7 @@ Room = {
    _numDesks = 0,
    _windows = {},
    _numWindows = 0,
+   exits = nil,
 }
 
 function Room:reset()
@@ -19,6 +21,7 @@ function Room:reset()
    self._numDesks = 0
    self._windows = {}
    self._numWindows = 0
+   self.exits = {}
    
    local pRoomLayout = love.math.random()
    -- todo: formalize room layouts a bit more
@@ -39,6 +42,37 @@ function Room:reset()
       self:_addSingleWindow()
    elseif pWindowLayout < 0.3 then
       self:_addWindowRow()
+   end
+end
+
+function Room:addExits(exitTaken)
+   local complement = Exit.complement(exitTaken)
+   local leftExit = Exit:new({
+         orientation = Exit.orientations.LEFT,
+         seedFrom = exitTaken.seedTo,
+   })
+   local rightExit = Exit:new({
+         orientation = Exit.orientations.RIGHT,
+         seedFrom = exitTaken.seedTo,
+   })
+   if exitTaken.orientation == Exit.orientations.INIT
+      or exitTaken.seedTo == SharedState.initialSeed
+   then
+      -- initial room just has a right exit by default
+      table.insert(self.exits, rightExit)
+   else
+      -- insert complement exit to the one we came from
+      table.insert(
+         self.exits,
+         complement
+      )
+      -- make sure we have both left and right
+      if complement.orientation ~= Exit.orientations.LEFT then
+         table.insert(self.exits, leftExit)
+      end
+      if complement.orientation ~= Exit.orientations.RIGHT then
+         table.insert(self.exits, rightExit)
+      end
    end
 end
 

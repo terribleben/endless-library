@@ -5,8 +5,7 @@ local Touchables = require 'touchables'
 G_VIEWPORT_BUFFER = 96
 
 function love.load()
-   love.math.setRandomSeed(42)
-   _reset()
+   _reset(42)
 end
 
 function love.draw()
@@ -27,9 +26,8 @@ end
 function love.keypressed(key, ...)
    if key == 'space' then
       local seed = math.random(99999) -- not using love's implementation
-      love.math.setRandomSeed(seed)
       print('rendering room with seed: ', seed)
-      _reset()
+      _reset(seed)
    end
 end
 
@@ -41,8 +39,8 @@ function love.mousepressed(...)
    Touchables:mousepressed(...)
 end
 
-function _reset()
-   SharedState:randomize()
+function _reset(initialSeed)
+   SharedState:reset(initialSeed)
 end
 
 function _drawViewportBorder()

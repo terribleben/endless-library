@@ -31,7 +31,7 @@ function Room:reset()
       self:_addRandomBookcases(0, x, true)
       self:_addRandomBookcases(x + width, SharedState.viewport.width, true)
    else
-      self:_addRandomBookcases(0, SharedState.viewport.width, false)
+      self:_addRandomBookcases(0, SharedState.viewport.width, false, true)
    end
 
    local pWindowLayout = love.math.random()
@@ -130,8 +130,8 @@ function Room:_addUniformBookcases(xBegin, xEnd)
       
 end
 
-function Room:_addRandomBookcases(xBegin, xEnd, allowEmpty)
-   local x, width = self:_addRandomBookcase(xBegin, xEnd, allowEmpty)
+function Room:_addRandomBookcases(xBegin, xEnd, allowEmpty, isRoot)
+   local x, width = self:_addRandomBookcase(xBegin, xEnd, allowEmpty and not isRoot)
    if width > 0 then
       self:_addRandomBookcases(xBegin, x, allowEmpty)
       self:_addRandomBookcases(x + width, xEnd, allowEmpty)

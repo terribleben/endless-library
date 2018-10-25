@@ -1,3 +1,4 @@
+local Lamp = require 'lamp'
 local Support = require 'support'
 
 Desk = {
@@ -5,8 +6,9 @@ Desk = {
    width = 0,
    height = 0,
    thickness = 0,
-   _supports = {},
+   _supports = nil,
    _numSupports = 0,
+   _lamp = nil,
 }
 
 function Desk:new(t)
@@ -28,6 +30,9 @@ function Desk:draw()
    for ii = 1, self._numSupports do
       self._supports[ii]:draw()
    end
+   if self._lamp ~= nil then
+      self._lamp:draw()
+   end
    love.graphics.pop()
 end
 
@@ -44,6 +49,14 @@ function Desk:_reset()
    elseif numSupports == 2 then
       self:_addSupport(self.thickness, self.thickness, supportStyle, supportBaseStyle, Support.orientations.LEFT)
       self:_addSupport(self.width - self.thickness, self.thickness, supportStyle, supportBaseStyle, Support.orientations.RIGHT)
+   end
+
+   if love.math.random() < 0.4 then
+      self._lamp = Lamp:new({
+            position = { x = love.math.random(10, self.width - 10), y = -48 },
+            width = 36,
+            height = 48,
+      })
    end
 end
 

@@ -15,17 +15,11 @@ function SharedState:reset(initialSeed)
          seedFrom = 0,
    })
    Map:reset(initialSeed)
-   love.math.setRandomSeed(initialSeed)
-   print('resetting room with seed ', initialSeed)
-   Room:reset()
-   Room:addExits(rootExit)
-   Touchables:reset()
+   self:nextRoom(rootExit)
 end
 
 function SharedState:nextRoom(exitTaken)
-   -- right now a door is just a seed
    love.math.setRandomSeed(exitTaken.seedTo)
-   print('exiting from seed ', exitTaken.seedFrom, ' to seed ', exitTaken.seedTo)
    Room:reset()
    Room:addExits(exitTaken)
    Touchables:reset()

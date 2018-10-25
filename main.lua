@@ -3,9 +3,10 @@ local SharedState = require 'sharedstate'
 local Touchables = require 'touchables'
 
 G_VIEWPORT_BUFFER = 96
+G_INITIAL_SEED = 424242
 
 function love.load()
-   _reset(42)
+   _reset(G_INITIAL_SEED)
 end
 
 function love.draw()
@@ -21,14 +22,6 @@ end
 
 function love.update(dt)
    Touchables:update(dt)
-end
-
-function love.keypressed(key, ...)
-   if key == 'space' then
-      local seed = math.random(99999) -- not using love's implementation
-      print('rendering room with seed: ', seed)
-      _reset(seed)
-   end
 end
 
 function love.mousemoved(...)

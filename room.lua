@@ -2,7 +2,8 @@ local SharedState = require 'sharedstate'
 local Bookcase = require 'bookcase'
 local Desk = require 'desk'
 local Exit = require 'exit'
-local winddow = require 'window'
+local Map = require 'map'
+local Window = require 'window'
 
 Room = {
    _bookcases = {},
@@ -46,33 +47,24 @@ function Room:reset()
 end
 
 function Room:addExits(exitTaken)
-   local complement = Exit.complement(exitTaken)
+   local currentSeed = exitTaken.seedTo
+   local previousSeed, nextSeed = Map:getNeighborSeeds(currentSeed)
    local leftExit = Exit:new({
          orientation = Exit.orientations.LEFT,
-         seedFrom = exitTaken.seedTo,
+         seedTo = previousSeed,
+         seedFrom = currentSeed,
    })
    local rightExit = Exit:new({
          orientation = Exit.orientations.RIGHT,
-         seedFrom = exitTaken.seedTo,
+         seedTo = nextSeed,
+         seedFrom = currentSeed,
    })
-   if exitTaken.orientation == Exit.orientations.INIT
-      or exitTaken.seedTo == SharedState.initialSeed
-   then
+   if previousSeed == 0 then
       -- initial room just has a right exit by default
       table.insert(self.exits, rightExit)
    else
-      -- insert complement exit to the one we came from
-      table.insert(
-         self.exits,
-         complement
-      )
-      -- make sure we have both left and right
-      if complement.orientation ~= Exit.orientations.LEFT then
-         table.insert(self.exits, leftExit)
-      end
-      if complement.orientation ~= Exit.orientations.RIGHT then
-         table.insert(self.exits, rightExit)
-      end
+      table.insert(self.exits, leftExit)
+      table.insert(self.exits, rightExit)
    end
 end
 

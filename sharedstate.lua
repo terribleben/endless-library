@@ -1,3 +1,5 @@
+local Map = require 'map'
+
 SharedState = {
    screen = { width = 0, height = 0 },
    viewport = { x = 0, y = 0, width = 0, height = 0 },
@@ -10,8 +12,9 @@ function SharedState:reset(initialSeed)
    local rootExit = Exit:new({
          orientation = Exit.orientations.INIT,
          seedTo = initialSeed,
-         seedFrom = initialSeed,
+         seedFrom = 0,
    })
+   Map:reset(initialSeed)
    love.math.setRandomSeed(initialSeed)
    print('resetting room with seed ', initialSeed)
    Room:reset()

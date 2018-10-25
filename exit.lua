@@ -18,9 +18,6 @@ function Exit:new(t)
 end
 
 function Exit:_reset()
-   if self.seedTo == 0 then
-      self.seedTo = love.math.random(1, 99999)
-   end
 end
 
 function Exit.complement(exit)

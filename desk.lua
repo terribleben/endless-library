@@ -38,15 +38,16 @@ function Desk:_reset()
    self.thickness = 8 * love.math.random(1, 3)
    local numSupports = love.math.random(1, 2)
    local supportStyle = love.math.random(1, Support.NUM_STYLES)
+   local supportBaseStyle = love.math.random(1, SupportSegment.NUM_STYLES)
    if numSupports == 1 then
-      self:_addSupport(self.width * 0.5, self.thickness, supportStyle, Support.orientations.CENTER)
+      self:_addSupport(self.width * 0.5, self.thickness, supportStyle, supportBaseStyle, Support.orientations.CENTER)
    elseif numSupports == 2 then
-      self:_addSupport(self.thickness, self.thickness, supportStyle, Support.orientations.LEFT)
-      self:_addSupport(self.width - self.thickness, self.thickness, supportStyle, Support.orientations.RIGHT)
+      self:_addSupport(self.thickness, self.thickness, supportStyle, supportBaseStyle, Support.orientations.LEFT)
+      self:_addSupport(self.width - self.thickness, self.thickness, supportStyle, supportBaseStyle, Support.orientations.RIGHT)
    end
 end
 
-function Desk:_addSupport(x, width, style, orientation)
+function Desk:_addSupport(x, width, style, baseStyle, orientation)
    self._numSupports = self._numSupports + 1
    self._supports[self._numSupports] = Support:new({
          position = { x = x, y = self.thickness },
@@ -54,6 +55,7 @@ function Desk:_addSupport(x, width, style, orientation)
          height = self.height - self.thickness,
          orientation = orientation,
          style = style,
+         baseStyle = baseStyle,
    })
    return x, width
 end

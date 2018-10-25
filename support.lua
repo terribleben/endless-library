@@ -51,6 +51,7 @@ function Support:_reset()
    self._numSegments = 0
    self._segments = {}
    if self.style < 1 then self.style = Support.styles.RECT end
+   if self.baseStyle < 1 then self.baseStyle = SupportSegment.styles.RECT end
    
    if self.style == Support.styles.RECT then
       self:_addSegment({
@@ -58,7 +59,7 @@ function Support:_reset()
          height = self.height,
       })
    elseif self.style == Support.styles.SMALL_BASE then
-      local baseWidth, baseHeight = self.width * 0.8, 6
+      local baseWidth, baseHeight = math.ceil(self.width * 0.8), 6
       self:_addSegment({
          width = self.width,
          height = self.height - baseHeight,
@@ -66,9 +67,10 @@ function Support:_reset()
       self:_addSegment({
          width = baseWidth,
          height = baseHeight,
+         style = self.baseStyle,
       })
    elseif self.style == Support.styles.LARGE_BASE then
-      local baseWidth, baseHeight = self.width * 1.2, 8
+      local baseWidth, baseHeight = math.ceil(self.width * 1.2), 8
       self:_addSegment({
          width = self.width,
          height = self.height - baseHeight,
@@ -76,6 +78,7 @@ function Support:_reset()
       self:_addSegment({
          width = baseWidth,
          height = baseHeight,
+         style = self.baseStyle,
       })
    end
 end

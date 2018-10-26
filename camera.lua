@@ -14,10 +14,14 @@ Camera = {
    },
 }
 
-function Camera:reset()
+function Camera:reset(exit)
    self.x = 0
    self.y = 0
    self._mouseRegion = Camera.mouseRegions.NONE
+
+   if exit.orientation == Exit.orientations.LEFT then
+      self.x = Room.width - SharedState.viewport.width
+   end
 end
 
 function Camera:mousemoved(x, y, ...)

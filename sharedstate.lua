@@ -23,7 +23,7 @@ function SharedState:nextRoom(exitTaken)
    Room:reset()
    Room:addExits(exitTaken)
    Touchables:reset()
-   Camera:reset()
+   Camera:reset(exitTaken)
 end
 
 function SharedState:_reset()

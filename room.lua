@@ -13,6 +13,8 @@ Room = {
    _windows = {},
    _numWindows = 0,
    exits = nil,
+   width = 0,
+   height = 0,
 }
 
 function Room:reset()
@@ -23,6 +25,10 @@ function Room:reset()
    self._windows = {}
    self._numWindows = 0
    self.exits = {}
+
+   -- TODO:
+   self.width = SharedState.viewport.width
+   self.height = SharedState.viewport.height
    
    local pRoomLayout = love.math.random()
    -- todo: formalize room layouts a bit more

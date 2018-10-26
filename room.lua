@@ -26,22 +26,32 @@ function Room:reset()
    self._numWindows = 0
    self.exits = {}
 
-   -- TODO:
-   self.width = SharedState.viewport.width
+   local pRoomSize = love.math.random()
+   local minWidth = math.max(800, SharedState.viewport.width)
+   if pRoomSize < 0.4 then
+      -- chamber
+      self.width = minWidth
+   elseif pRoomSize < 0.8 then
+      -- room
+      self.width = minWidth + 100 * love.math.random(2, 7)
+   else
+      -- hall
+      self.width = 2000 + 200 * love.math.random(0, 5)
+   end
    self.height = SharedState.viewport.height
    
    local pRoomLayout = love.math.random()
    -- todo: formalize room layouts a bit more
    if pRoomLayout < 0.3 then
-      self:_addUniformBookcases(0, SharedState.viewport.width)
+      self:_addUniformBookcases(0, self.width)
    elseif pRoomLayout < 0.7 then
-      self:_addRandomBookcases(0, SharedState.viewport.width, true)
+      self:_addRandomBookcases(0, self.width, true)
    elseif pRoomLayout < 0.8 then
       local x, width = self:_addDesk()
       self:_addRandomBookcases(0, x, true)
-      self:_addRandomBookcases(x + width, SharedState.viewport.width, true)
+      self:_addRandomBookcases(x + width, self.width, true)
    else
-      self:_addRandomBookcases(0, SharedState.viewport.width, false, true)
+      self:_addRandomBookcases(0, self.width, false, true)
    end
 
    local pWindowLayout = love.math.random()
@@ -89,7 +99,7 @@ end
 function Room:_addSingleWindow()
    local variety = love.math.random(1, Window.NUM_VARIETIES)
    local width, height = Window.getCharacteristicSize(variety)
-   local x = love.math.random() * (SharedState.viewport.width - width)
+   local x = love.math.random() * (self.width - width)
    local y = 50 + 50 * love.math.random(0, 4)
    return self:_addWindow({
          position = { x = x, y = y },
@@ -103,10 +113,10 @@ function Room:_addWindowRow()
    local variety = love.math.random(1, Window.NUM_VARIETIES)
    local width, height = Window.getCharacteristicSize(variety)
    local spacing = 10 + 10 * love.math.random(0, 3)
-   local maxNumWindows = math.floor(SharedState.viewport.width / (width + spacing))
+   local maxNumWindows = math.floor(self.width / (width + spacing))
    local numWindows = love.math.random(2, maxNumWindows)
    local totalWidth = (width * numWindows) + (spacing * (numWindows - 1))
-   local xStart = (SharedState.viewport.width * 0.5) - (totalWidth * 0.5)
+   local xStart = (self.width * 0.5) - (totalWidth * 0.5)
    local y = 50 + 50 * love.math.random(0, 4)
    for ii = 0, numWindows - 1 do
       self:_addWindow({
@@ -127,10 +137,10 @@ end
 
 function Room:_addDesk()
    local width, height = 200, 75
-   local x = love.math.random() * (SharedState.viewport.width - width)
+   local x = love.math.random() * (self.width - width)
    self._numDesks = self._numDesks + 1
    self._desks[self._numDesks] = Desk:new({
-         position = { x = x, y = SharedState.viewport.height - height },
+         position = { x = x, y = self.height - height },
          width = width,
          height = height,
    })
@@ -146,7 +156,7 @@ function Room:_addUniformBookcases(xBegin, xEnd)
    for ii = 1, numBookcases do
       self._numBookcases = self._numBookcases + 1
       self._bookcases[self._numBookcases] = Bookcase:new({
-         position = { x = 0, y = SharedState.viewport.height - height },
+         position = { x = 0, y = self.height - height },
          width = width,
          height = height,
       })
@@ -192,7 +202,7 @@ function Room:_addRandomBookcase(xBegin, xEnd, allowEmpty)
    local height = 150 + 25 * love.math.random(4)
    self._bookcases[self._numBookcases] = 
       Bookcase:new({
-            position = { x = x, y = SharedState.viewport.height - height },
+            position = { x = x, y = self.height - height },
             width = width,
             height = height,
       })

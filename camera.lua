@@ -4,6 +4,8 @@ local Room = require 'room'
 Camera = {
    x = 0,
    y = 0,
+   _vx = 0,
+   _vy = 0,
    _mouseRegion = 0,
    mouseRegions = {
       NONE = 0,
@@ -40,10 +42,20 @@ end
 
 function Camera:update(dt)
    if self._mouseRegion == Camera.mouseRegions.RIGHT then
-      self.x = self.x + 4
+      self._vx = self._vx + 0.25
+      if self._vx > 4 then self._vx = 6 end
    elseif self._mouseRegion == Camera.mouseRegions.LEFT then
-      self.x = self.x - 4
+      self._vx = self._vx - 0.25
+      if self._vx < -4 then self._vx = -6 end
+   else
+      self._vx = self._vx * 0.85
+      if math.abs(self._vx) < 0.1 then
+         self._vx = 0
+      end
    end
+
+   self.x = self.x + self._vx
+   self.y = self.y + self._vy
 
    if self.x > Room.width - SharedState.viewport.width then
       self.x = Room.width - SharedState.viewport.width

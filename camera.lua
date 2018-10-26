@@ -65,4 +65,12 @@ function Camera:update(dt)
    end
 end
 
+function Camera:isRightRoomEdge()
+   return self.x >= Room.width - SharedState.viewport.width
+end
+
+function Camera:isLeftRoomEdge()
+   return self.x <= 0
+end
+
 return Camera

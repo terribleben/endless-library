@@ -1,3 +1,4 @@
+local Camera = require 'camera'
 local Exit = require 'exit'
 local Geom = require 'geom'
 local SharedState = require 'sharedstate'
@@ -9,6 +10,8 @@ Touchables = {
    _mouseTimer = 0,
    _opacity = 0,
    _touchables = nil,
+   _touchableRight = nil,
+   _touchableLeft = nil,
    _isTransitioning = false,
    _transitionTimer = 0,
    _transitionDestination = 0,
@@ -17,6 +20,8 @@ Touchables = {
 
 function Touchables:reset()
    self._touchables = {}
+   self._touchableRight = nil
+   self._touchableLeft = nil
    self._isTransitioning = false
    self._transitionTimer = 0
    self._transitionDestination = 0
@@ -30,20 +35,24 @@ function Touchables:reset()
       end
    end
    if rightExit then
-      table.insert(self._touchables, {
+      self._touchableRight = {
          x = SharedState.viewport.width + 32,
          y = SharedState.viewport.height - 192,
          angle = 0,
          exit = rightExit,
-      })
+         isAvailable = true,
+      }
+      table.insert(self._touchables, self._touchableRight)
    end
    if leftExit then
-      table.insert(self._touchables, {
+      self._touchableLeft = {
          x = -32,
          y = SharedState.viewport.height - 192,
          angle = math.pi,
          exit = leftExit,
-      })
+         isAvailable = true,
+      }
+      table.insert(self._touchables, self._touchableLeft)
    end
 end
 
@@ -68,13 +77,22 @@ function Touchables:update(dt)
          self:_transitionFinished()
       end
    end
+
+   if self._touchableRight then
+      self._touchableRight.isAvailable = Camera:isRightRoomEdge()
+   end
+   if self._touchableLeft then
+      self._touchableLeft.isAvailable = Camera:isLeftRoomEdge()
+   end
 end
 
 function Touchables:draw()
    if not self._isTransitioning then
       love.graphics.setColor(0, 1, 1, self._opacity)
       for idx, touchable in pairs(self._touchables) do
-         self:_drawArrow(touchable.x, touchable.y, 12, touchable.angle)
+         if touchable.isAvailable then
+            self:_drawArrow(touchable.x, touchable.y, 12, touchable.angle)
+         end
       end
    end
 end
@@ -94,10 +112,13 @@ function Touchables:mousepressed(x, y, ...)
    }
    local pressed = self:_indexOfTouchablePressed(touchInViewport)
    if pressed >= 0 then
-      self._isTransitioning = true
-      self._transitionTimer = Transition.TIME_OUT
-      self._transitionDestination = self._touchables[pressed].exit
-      Transition:start()
+      local touchablePressed = self._touchables[pressed]
+      if touchablePressed.isAvailable then
+         self._isTransitioning = true
+         self._transitionTimer = Transition.TIME_OUT
+         self._transitionDestination = touchablePressed.exit
+         Transition:start()
+      end
    end
 end
 

@@ -45,7 +45,7 @@ function Room:reset()
    if pRoomLayout < 0.3 then
       self:_addUniformBookcases(0, self.width)
    elseif pRoomLayout < 0.7 then
-      self:_addRandomBookcases(0, self.width, true)
+      self:_addRandomBookcases(0, self.width, true, true)
    elseif pRoomLayout < 0.8 then
       local x, width = self:_addDesk()
       self:_addRandomBookcases(0, x, true)

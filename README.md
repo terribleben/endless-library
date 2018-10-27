@@ -9,4 +9,4 @@
 ### Play published version
 
 - Install [Castle](https://www.playcastle.io/)
-- Open [main.lua](castle://raw.githubusercontent.com/terribleben/endless-library/master/main.lua) in Castle
+- Open castle://raw.githubusercontent.com/terribleben/endless-library/master/main.lua in Castle

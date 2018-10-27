@@ -1,14 +1,12 @@
-local Camera = require 'camera'
-local Room = require 'room'
+local Controller = require 'controller'
 local SharedState = require 'sharedstate'
 local Touchables = require 'touchables'
 local Transition = require 'transition'
 
 G_VIEWPORT_BUFFER = 800
-G_INITIAL_SEED = 424242
 
 function love.load()
-   _reset(G_INITIAL_SEED)
+   _reset()
 end
 
 function love.draw()
@@ -16,10 +14,7 @@ function love.draw()
    -- transform to viewport coords
    love.graphics.translate(SharedState.screen.width * 0.5, SharedState.screen.height * 0.5)
    love.graphics.translate(SharedState.viewport.x, SharedState.viewport.y)
-   love.graphics.push()
-   love.graphics.translate(-Camera.x, -Camera.y)
-   Room:draw()
-   love.graphics.pop()
+   Controller:draw()
    Transition:draw()
    _drawViewportBorder()
    Touchables:draw()
@@ -29,20 +24,22 @@ end
 function love.update(dt)
    Touchables:update(dt)
    Transition:update(dt)
-   Camera:update(dt)
+   Controller:update(dt)
 end
 
 function love.mousemoved(...)
    Touchables:mousemoved(...)
-   Camera:mousemoved(...)
+   Controller:mousemoved(...)
 end
 
 function love.mousepressed(...)
    Touchables:mousepressed(...)
 end
 
-function _reset(initialSeed)
-   SharedState:reset(initialSeed)
+function _reset()
+   SharedState:reset()
+   Controller:reset()
+   Touchables:reset()
 end
 
 function _drawViewportBorder()

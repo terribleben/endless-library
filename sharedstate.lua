@@ -1,29 +1,10 @@
-local Map = require 'map'
-
-SharedState = {
+local SharedState = {
    screen = { width = 0, height = 0 },
    viewport = { x = 0, y = 0, width = 0, height = 0 },
-   initialSeed = 0,
 }
 
-function SharedState:reset(initialSeed)
+function SharedState:reset()
    self:_reset()
-   self.initialSeed = initialSeed
-   local rootExit = Exit:new({
-         orientation = Exit.orientations.INIT,
-         seedTo = initialSeed,
-         seedFrom = 0,
-   })
-   Map:reset(initialSeed)
-   self:nextRoom(rootExit)
-end
-
-function SharedState:nextRoom(exitTaken)
-   love.math.setRandomSeed(exitTaken.seedTo)
-   Room:reset()
-   Room:addExits(exitTaken)
-   Touchables:reset()
-   Camera:reset(exitTaken)
 end
 
 function SharedState:_reset()

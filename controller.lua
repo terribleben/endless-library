@@ -12,7 +12,6 @@ local Controller = {
       PLAY = 1,
    },
    initialSeed = 0,
-   DEFAULT_SEED = 424242,
 
    _isTransitioning = false,
    _transitionTimer = 0,
@@ -68,7 +67,7 @@ end
 
 function Controller:enterLibrary(initialSeed)
    self.mode = Controller.modes.PLAY
-   initialSeed = initialSeed or Controller.DEFAULT_SEED
+   initialSeed = initialSeed or Menu.DEFAULT_SEED
    self.initialSeed = initialSeed
    local rootExit = Exit:new({
          orientation = Exit.orientations.INIT,
@@ -84,6 +83,10 @@ function Controller:nextRoom(exitTaken)
    Room:reset()
    Room:addExits(exitTaken)
    Room.touchDelegate = self
+end
+
+function Controller:exitLibrary()
+   self:reset()
 end
 
 function Controller:_getTouchResponder()
@@ -105,9 +108,13 @@ function Controller:_transitionFinished()
    self._isTransitioning = false
    self._transitionTimer = 0
    if self.mode == Controller.modes.MENU then
-      self:enterLibrary()
+      self:enterLibrary(Menu.seed)
    else
-      self:nextRoom(self._transitionDestination)
+      if self._transitionDestination.seedTo == 0 then
+         self:exitLibrary()
+      else
+         self:nextRoom(self._transitionDestination)
+      end
    end
    self:_resetTransition()
 end
@@ -115,7 +122,7 @@ end
 function Controller:_resetTransition()
    self._isTransitioning = false
    self._transitionTimer = 0
-   self._transitionDestination = 0
+   self._transitionDestination = nil
 end
 
 return Controller

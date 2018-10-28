@@ -113,6 +113,7 @@ function Room:drawTouchables(opacity)
          Touchables:drawArrow(touchable.x, touchable.y, 12, touchable.angle)
       end
    end
+   love.graphics.print('return to menu', 0, SharedState.viewport.height + 8)
 end
 
 function Room:_addSingleWindow()
@@ -206,7 +207,17 @@ function Room:mousepressed(x, y)
       local touchablePressed = self._touchables[pressed]
       if touchablePressed.isAvailable then
          self.touchDelegate:touchablePressed(touchablePressed)
+         return
       end
+   end
+
+   if touchInViewport.x > 0 and touchInViewport.x < 100
+      and touchInViewport.y > SharedState.viewport.height
+      and touchInViewport.y < SharedState.viewport.height + 32
+   then
+      self.touchDelegate:touchablePressed({
+            exit = { seedTo = 0},
+      })
    end
 end
 

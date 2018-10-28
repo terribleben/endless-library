@@ -51,7 +51,7 @@ function Desk:_reset()
       self:_addSupport(self.width - self.thickness, self.thickness, supportStyle, supportBaseStyle, Support.orientations.RIGHT)
    end
 
-   if love.math.random() < 0.4 then
+   if love.math.random() < 0.6 then
       self._lamp = Lamp:new({
             position = { x = love.math.random(10, self.width - 10), y = -48 },
             width = 36,

@@ -34,7 +34,7 @@ function Zone:_reset()
       self:_addUniformBookcases(0, self.width)
    elseif pZoneLayout < 0.7 then
       self:_addRandomBookcases(0, self.width, true, true)
-   elseif pZoneLayout < 0.8 then
+   elseif pZoneLayout < 0.85 then
       local x, width = self:_addDesk()
       self:_addRandomBookcases(0, x, true)
       self:_addRandomBookcases(x + width, self.width, true)
@@ -105,7 +105,7 @@ end
 -- or none if nothing fits.
 -- return the x, width of the resulting bookcase; or zero width if none is created.
 function Zone:_addRandomBookcase(xBegin, xEnd, allowEmpty)
-   if allowEmpty and love.math.random() < 0.2 then
+   if allowEmpty and love.math.random() < 0.15 then
       return xEnd, 0
    end
    if xEnd - xBegin < Bookcase.sizes.NARROW then

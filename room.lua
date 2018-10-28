@@ -55,7 +55,7 @@ function Room:reset()
    local pWindowLayout = love.math.random()
    if pWindowLayout < 0.1 then
       self:_addSingleWindow()
-   elseif pWindowLayout < 0.3 then
+   elseif pWindowLayout < 0.5 then
       self:_addWindowRow()
    end
 end
@@ -107,13 +107,16 @@ function Room:draw()
 end
 
 function Room:drawTouchables(opacity)
-   love.graphics.setColor(0, 1, 1, opacity)
    for idx, touchable in pairs(self._touchables) do
       if touchable.isAvailable then
-         Touchables:drawArrow(touchable.x, touchable.y, 12, touchable.angle)
+         love.graphics.setColor(0, 1, 1, opacity)
+      else
+         love.graphics.setColor(0.4, 0.4, 0.4, opacity)
       end
+      Touchables:drawArrow(touchable.x, touchable.y, 12, touchable.angle, touchable.isAvailable)
    end
-   love.graphics.print('return to menu', 0, SharedState.viewport.height + 8)
+   love.graphics.setColor(0, 1, 1, opacity)
+   love.graphics.print('return to menu', 0, SharedState.viewport.height + 16)
 end
 
 function Room:_addSingleWindow()
@@ -212,8 +215,8 @@ function Room:mousepressed(x, y)
    end
 
    if touchInViewport.x > 0 and touchInViewport.x < 100
-      and touchInViewport.y > SharedState.viewport.height
-      and touchInViewport.y < SharedState.viewport.height + 32
+      and touchInViewport.y > SharedState.viewport.height + 12
+      and touchInViewport.y < SharedState.viewport.height + 48
    then
       self.touchDelegate:touchablePressed({
             exit = { seedTo = 0},

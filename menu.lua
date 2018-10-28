@@ -76,7 +76,7 @@ end
 function Menu:drawTouchables(opacity)
    love.graphics.setColor(0, 1, 1, opacity)
    for idx, touchable in pairs(self._touchables) do
-      Touchables:drawArrow(touchable.x, touchable.y, 12, touchable.angle)
+      Touchables:drawArrow(touchable.x, touchable.y, 12, touchable.angle, true)
    end
 end
 

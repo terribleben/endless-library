@@ -37,11 +37,16 @@ function Touchables:mousepressed(x, y, ...)
    self._mouseTimer = self.MOUSE_TIMER_MAX
 end
 
-function Touchables:drawArrow(x, y, radius, angle)
-   love.graphics.push()
+function Touchables:drawArrow(x, y, radius, angle, active)
+   love.graphics.push('all')
    love.graphics.translate(x, y)
    love.graphics.rotate(angle)
-   love.graphics.circle('fill', 0, 0, radius, 3)
+   if active then
+      love.graphics.circle('fill', 0, 0, radius, 3)
+   else
+      love.graphics.setLineWidth(3.0)
+      love.graphics.circle('line', 0, 0, radius - 3.0, 3)
+   end
    love.graphics.pop()
 end
 

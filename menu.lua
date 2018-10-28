@@ -6,8 +6,8 @@ local Menu = {
    _touchables = nil,
    _menuItems = nil,
    touchDelegate = nil,
-   seed = 424242,
-   DEFAULT_SEED = 424242,
+   seed = 123456,
+   DEFAULT_SEED = 123456,
 }
 
 function Menu:reset()

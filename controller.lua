@@ -1,8 +1,9 @@
-local Camera = require 'camera'
 local Map = require 'map'
 local Menu = require 'menu'
 local Room = require 'room'
 local SharedState = require 'sharedstate'
+local Transition = require 'transition'
+local Touchables = require 'touchables'
 
 local Controller = {
    mode = 0,
@@ -12,43 +13,56 @@ local Controller = {
    },
    initialSeed = 0,
    DEFAULT_SEED = 424242,
-   touchables = nil,
-   _touchableLeft = nil,
-   _touchableRight = nil,
+
+   _isTransitioning = false,
+   _transitionTimer = 0,
+   _transitionDestination = 0,
 }
 
 function Controller:reset()
    self.mode = Controller.modes.MENU
    self.initialSeed = 0
-   self:_computeTouchables()
+   Touchables:reset()
+   Menu:reset()
+   Menu.touchDelegate = self
+   self:_resetTransition()
 end
 
 function Controller:update(dt)
+   Touchables:update(dt)
    if self.mode == Controller.modes.PLAY then
-      Camera:update(dt)
-      if self._touchableRight then
-         self._touchableRight.isAvailable = self:canAdvanceRight()
-      end
-      if self._touchableLeft then
-         self._touchableLeft.isAvailable = self:canAdvanceLeft()
+      Room:update(dt)
+   end
+
+   if self._isTransitioning then
+      self._transitionTimer = self._transitionTimer - dt
+      if self._transitionTimer <= 0 then
+         self:_transitionFinished()
       end
    end
 end
 
 function Controller:mousemoved(...)
-   if self.mode == Controller.modes.PLAY then
-      Camera:mousemoved(...)
-   end
+   Touchables:mousemoved(...)
+   self:_getTouchResponder():mousemoved(...)
+end
+
+function Controller:mousepressed(...)
+   Touchables:mousepressed(...)
+   self:_getTouchResponder():mousepressed(...)
 end
 
 function Controller:draw()
    if self.mode == Controller.modes.PLAY then
-      love.graphics.push()
-      love.graphics.translate(-Camera.x, -Camera.y)
       Room:draw()
-      love.graphics.pop()
    elseif self.mode == Controller.modes.MENU then
       Menu:draw()
+   end
+end
+
+function Controller:drawTouchables()
+   if not self._isTransitioning then
+      self:_getTouchResponder():drawTouchables(Touchables.opacity)
    end
 end
 
@@ -69,54 +83,39 @@ function Controller:nextRoom(exitTaken)
    love.math.setRandomSeed(exitTaken.seedTo)
    Room:reset()
    Room:addExits(exitTaken)
-   Camera:reset(exitTaken)
-   self:_computeTouchables()
+   Room.touchDelegate = self
 end
 
-function Controller:canAdvanceRight()
-   return Camera:isRightRoomEdge()
-end
-
-function Controller:canAdvanceLeft()
-   return Camera:isLeftRoomEdge()
-end
-
-function Controller:_computeTouchables()
-   self.touchables = {}
-   self._touchableLeft = nil
-   self._touchableRight = nil
-   
-   local leftExit, rightExit
+function Controller:_getTouchResponder()
    if self.mode == Controller.modes.PLAY then
-      for idx, exit in pairs(Room.exits) do
-         if exit.orientation == Exit.orientations.RIGHT then
-            rightExit = exit
-         end
-         if exit.orientation == Exit.orientations.LEFT then
-            leftExit = exit
-         end
-      end
+      return Room
+   elseif self.mode == Controller.modes.MENU then
+      return Menu
    end
-   if rightExit or self.mode == Controller.modes.MENU then
-      self._touchableRight = {
-         x = SharedState.viewport.width + 32,
-         y = SharedState.viewport.height - 192,
-         angle = 0,
-         exit = rightExit,
-         isAvailable = true,
-      }
-      table.insert(self.touchables, self._touchableRight)
+end
+
+function Controller:touchablePressed(touchable)
+   self._isTransitioning = true
+   self._transitionTimer = Transition.TIME_OUT
+   self._transitionDestination = touchable.exit
+   Transition:start()
+end
+
+function Controller:_transitionFinished()
+   self._isTransitioning = false
+   self._transitionTimer = 0
+   if self.mode == Controller.modes.MENU then
+      self:enterLibrary()
+   else
+      self:nextRoom(self._transitionDestination)
    end
-   if leftExit then
-      self._touchableLeft = {
-         x = -32,
-         y = SharedState.viewport.height - 192,
-         angle = math.pi,
-         exit = leftExit,
-         isAvailable = true,
-      }
-      table.insert(self.touchables, self._touchableLeft)
-   end
+   self:_resetTransition()
+end
+
+function Controller:_resetTransition()
+   self._isTransitioning = false
+   self._transitionTimer = 0
+   self._transitionDestination = 0
 end
 
 return Controller

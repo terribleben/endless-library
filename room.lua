@@ -1,17 +1,24 @@
+local Camera = require 'camera'
 local SharedState = require 'sharedstate'
 local Exit = require 'exit'
+local Geom = require 'geom'
 local Map = require 'map'
+local Touchables = require 'touchables'
 local Window = require 'window'
 local Zone = require 'zone'
 
-Room = {
+local Room = {
    exits = nil,
    width = 0,
    height = 0,
+   touchDelegate = nil, -- Controller
    _zones = nil,
    _numZones = 0,
    _windows = nil,
    _numWindows = 0,
+   _touchables = nil,
+   _touchableLeft = nil,
+   _touchableRight = nil,
 }
 
 function Room:reset()
@@ -20,6 +27,7 @@ function Room:reset()
    self._windows = {}
    self._numWindows = 0
    self.exits = {}
+   self.touchDelegate = nil
 
    local pRoomSize = love.math.random()
    local minWidth = math.max(800, SharedState.viewport.width)
@@ -53,6 +61,7 @@ function Room:reset()
 end
 
 function Room:addExits(exitTaken)
+   Camera:reset(exitTaken, self.width, self.height)
    local currentSeed = exitTaken.seedTo
    local previousSeed, nextSeed = Map:getNeighborSeeds(currentSeed)
    local leftExit = Exit:new({
@@ -72,14 +81,37 @@ function Room:addExits(exitTaken)
       table.insert(self.exits, leftExit)
       table.insert(self.exits, rightExit)
    end
+   self:_computeTouchables()
+end
+
+function Room:update(dt)
+   Camera:update(dt)
+   if self._touchableLeft then
+      self._touchableLeft.isAvailable = Camera:isLeftRoomEdge()
+   end
+   if self._touchableRight then
+      self._touchableRight.isAvailable = Camera:isRightRoomEdge()
+   end
 end
 
 function Room:draw()
+   love.graphics.push()
+   love.graphics.translate(-Camera.x, -Camera.y)
    for ii = 1, self._numWindows do
       self._windows[ii]:draw()
    end
    for ii = 1, self._numZones do
       self._zones[ii]:draw()
+   end
+   love.graphics.pop()
+end
+
+function Room:drawTouchables(opacity)
+   love.graphics.setColor(0, 1, 1, opacity)
+   for idx, touchable in pairs(self._touchables) do
+      if touchable.isAvailable then
+         Touchables:drawArrow(touchable.x, touchable.y, 12, touchable.angle)
+      end
    end
 end
 
@@ -124,6 +156,67 @@ end
 function Room:_addZone(z)
    self._numZones = self._numZones + 1
    self._zones[self._numZones] = Zone:new(z)
+end
+
+function Room:_computeTouchables()
+   self._touchables = {}
+   self._touchableLeft = nil
+   self._touchableRight = nil
+   
+   local leftExit, rightExit
+   for idx, exit in pairs(self.exits) do
+      if exit.orientation == Exit.orientations.RIGHT then
+         rightExit = exit
+      end
+      if exit.orientation == Exit.orientations.LEFT then
+         leftExit = exit
+      end
+   end
+   if rightExit then
+      self._touchableRight = {
+         x = SharedState.viewport.width + 32,
+         y = SharedState.viewport.height - 192,
+         angle = 0,
+         exit = rightExit,
+      }
+      table.insert(self._touchables, self._touchableRight)
+   end
+   if leftExit then
+      self._touchableLeft = {
+         x = -32,
+         y = SharedState.viewport.height - 192,
+         angle = math.pi,
+         exit = leftExit,
+      }
+      table.insert(self._touchables, self._touchableLeft)
+   end
+end
+
+function Room:mousemoved(...)
+   Camera:mousemoved(...)
+end
+
+function Room:mousepressed(x, y)
+   local touchInViewport = {
+      x = x - SharedState.screen.width * 0.5 - SharedState.viewport.x,
+      y = y - SharedState.screen.height * 0.5 - SharedState.viewport.y,
+   }
+   local pressed = self:_indexOfTouchablePressed(touchInViewport)
+   if pressed >= 0 then
+      local touchablePressed = self._touchables[pressed]
+      if touchablePressed.isAvailable then
+         self.touchDelegate:touchablePressed(touchablePressed)
+      end
+   end
+end
+
+function Room:_indexOfTouchablePressed(touchInViewport)
+   for idx, touchable in pairs(self._touchables) do
+      if Geom.distance2(touchInViewport, touchable) <= 12 then
+         return idx
+      end
+   end
+   return -1
 end
 
 return Room

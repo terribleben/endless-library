@@ -1,11 +1,12 @@
 local SharedState = require 'sharedstate'
-local Room = require 'room'
 
 Camera = {
    x = 0,
    y = 0,
    _vx = 0,
    _vy = 0,
+   _roomWidth = 0,
+   _roomHeight = 0,
    _mouseRegion = 0,
    mouseRegions = {
       NONE = 0,
@@ -14,13 +15,15 @@ Camera = {
    },
 }
 
-function Camera:reset(exit)
+function Camera:reset(exit, roomWidth, roomHeight)
    self.x = 0
    self.y = 0
+   self.roomWidth = roomWidth
+   self.roomHeight = roomHeight
    self._mouseRegion = Camera.mouseRegions.NONE
 
    if exit.orientation == Exit.orientations.LEFT then
-      self.x = Room.width - SharedState.viewport.width
+      self.x = roomWidth - SharedState.viewport.width
    end
 end
 
@@ -61,8 +64,8 @@ function Camera:update(dt)
    self.x = self.x + self._vx
    self.y = self.y + self._vy
 
-   if self.x > Room.width - SharedState.viewport.width then
-      self.x = Room.width - SharedState.viewport.width
+   if self.x > self.roomWidth - SharedState.viewport.width then
+      self.x = self.roomWidth - SharedState.viewport.width
    end
    if self.x < 0 then
       self.x = 0
@@ -70,7 +73,7 @@ function Camera:update(dt)
 end
 
 function Camera:isRightRoomEdge()
-   return self.x >= Room.width - SharedState.viewport.width
+   return self.x >= self.roomWidth - SharedState.viewport.width
 end
 
 function Camera:isLeftRoomEdge()

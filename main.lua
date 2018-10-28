@@ -1,6 +1,5 @@
 local Controller = require 'controller'
 local SharedState = require 'sharedstate'
-local Touchables = require 'touchables'
 local Transition = require 'transition'
 
 G_VIEWPORT_BUFFER = 800
@@ -17,29 +16,26 @@ function love.draw()
    Controller:draw()
    Transition:draw()
    _drawViewportBorder()
-   Touchables:draw()
+   Controller:drawTouchables()
    love.graphics.pop()
 end
 
 function love.update(dt)
-   Touchables:update(dt)
    Transition:update(dt)
    Controller:update(dt)
 end
 
 function love.mousemoved(...)
-   Touchables:mousemoved(...)
    Controller:mousemoved(...)
 end
 
 function love.mousepressed(...)
-   Touchables:mousepressed(...)
+   Controller:mousepressed(...)
 end
 
 function _reset()
    SharedState:reset()
    Controller:reset()
-   Touchables:reset()
 end
 
 function _drawViewportBorder()

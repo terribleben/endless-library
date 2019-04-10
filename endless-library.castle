@@ -1,6 +1,6 @@
 ---
 main: main.lua
-name: Endless Library
-username: ben
+title: Endless Library
+owner: ben
 description: Wander through infinite halls of books forever until you die.
-coverImageUrl: https://castle.imgix.net/file:afa7236
+coverImage: screen/cover.png
